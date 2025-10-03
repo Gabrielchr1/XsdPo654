@@ -27,5 +27,24 @@ def create_admin_command(username, email, password):
     print(f"Usuário administrador '{username}' criado com sucesso!")
 
 
+
+# --- NOVO COMANDO PARA INICIALIZAR O BANCO DE DADOS ---
+@app.cli.command("init-db")
+def init_db_command():
+    """Verifica se há usuários e, se não houver, cria o admin inicial."""
+    if User.query.first() is not None:
+        print("O banco de dados já contém usuários. O comando init-db não será executado.")
+        return
+
+    print("Banco de dados vazio. Criando usuário 'Admin' inicial...")
+    admin_user = User(username='Admin', email='admin@solucaosolar.com')
+    admin_user.set_password('123456') # Lembre-se de trocar por uma senha forte no futuro
+    db.session.add(admin_user)
+    db.session.commit()
+    print("Usuário 'Admin' inicial criado com sucesso!")
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
