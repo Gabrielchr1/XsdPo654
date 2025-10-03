@@ -161,36 +161,38 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    // --- NOVA FUNCIONALIDADE DE ADICIONAR CONCESSIONARIA (CORRIGIDO) ---
+    // --- NOVA FUNCIONALIDADE DE ADICIONAR CONCESSIONARIA (MAIS ROBUSTO) ---
     const modalElement = document.getElementById('addConcessionariaModal');
     if (modalElement) {
         const modal = new bootstrap.Modal(modalElement);
         const form = document.getElementById('addConcessionariaForm');
         
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const formAction = form.getAttribute('action'); // Pega a URL correta do atributo action do form
+        // ADICIONAMOS ESTA VERIFICAÇÃO EXTRA
+        if (form) { 
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const formAction = form.getAttribute('action');
 
-            fetch(formAction, { // Usa a URL correta
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const select = document.getElementById('concessionaria_select');
-                    const newOption = new Option(data.name, data.id, true, true);
-                    select.appendChild(newOption);
-                    
-                    modal.hide();
-                    form.reset();
-                } else {
-                    alert('Erro ao salvar: ' + JSON.stringify(data.errors));
-                }
-            })
-            .catch(error => console.error('Erro:', error));
-        });
+                fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('concessionaria_select');
+                        const newOption = new Option(data.name, data.id, true, true);
+                        select.appendChild(newOption);
+                        modal.hide();
+                        form.reset();
+                    } else {
+                        alert('Erro ao salvar: ' + JSON.stringify(data.errors));
+                    }
+                })
+                .catch(error => console.error('Erro:', error));
+            });
+        }
     }
 
 
