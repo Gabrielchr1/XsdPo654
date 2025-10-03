@@ -2,6 +2,5 @@ venv/
 __pycache__/
 *.pyc
 .env
-.flaskenv
 app.db
 instance/
