@@ -1,0 +1,90 @@
+
+
+#init_app
+
+# app/__init__.py
+
+from flask import Flask
+from config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from markupsafe import escape, Markup
+from sqlalchemy import MetaData # <-- 1. NOVA IMPORTAÇÃO
+
+# --- 2. NOVA REGRA DE NOMES ---
+naming_convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+# -----------------------------
+
+# --- 3. ATUALIZE A INICIALIZAÇÃO DO DB ---
+db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
+migrate = Migrate()
+# ----------------------------------------
+
+login = LoginManager()
+login.login_view = 'main.login'
+login.login_message = 'Por favor, faça login para acessar esta página.'
+login.login_message_category = 'info'
+
+def nl2br(value):
+    return Markup(escape(value).replace('\n', '<br>\n'))
+
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    # A inicialização do db e migrate agora é feita fora da função
+    db.init_app(app)
+    migrate.init_app(app, db)
+    
+    login.init_app(app)
+
+    from app.routes import bp as main_blueprint
+    app.register_blueprint(main_blueprint)
+    
+    app.jinja_env.filters['nl2br'] = nl2br
+    
+    return app
+
+from app import models
+
+
+
+#run.py
+from app import create_app, db
+from app.models import User
+import click # Flask usa a biblioteca Click para criar comandos
+
+app = create_app()
+
+# O código abaixo cria um novo comando para o terminal
+@app.cli.command("create-admin")
+@click.argument("username")
+@click.argument("email")
+@click.argument("password")
+def create_admin_command(username, email, password):
+    """Cria um novo usuário administrador."""
+    # Verifica se o usuário ou email já existem
+    if User.query.filter_by(username=username).first() is not None:
+        print(f"Erro: O usuário '{username}' já existe.")
+        return
+    if User.query.filter_by(email=email).first() is not None:
+        print(f"Erro: O e-mail '{email}' já está em uso.")
+        return
+
+    # Cria a instância do usuário, define a senha e salva
+    user = User(username=username, email=email)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    print(f"Usuário administrador '{username}' criado com sucesso!")
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

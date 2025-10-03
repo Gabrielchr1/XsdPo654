@@ -1,0 +1,123 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mt-4 mb-0">{{ proposal.title }}</h1>
+        <p class="lead text-muted">
+            Cliente: <a href="#">{{ proposal.client.name }}</a>
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('main.generate_pdf', proposal_id=proposal.id) }}" target="_blank" class="btn btn-danger">
+            <i class="fas fa-file-pdf me-2"></i>Gerar PDF
+        </a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category or 'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Detalhes da Proposta</h5>
+                <a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> <span class="badge bg-primary">{{ proposal.status }}</span></p>
+                <p class="h4"><strong>Investimento: R$ {{ "%.2f"|format(proposal.total_investment or 0) }}</strong></p>
+                <p><strong>Economia Anual:</strong> R$ {{ "%.2f"|format(proposal.estimated_savings_per_year or 0) }}</p>
+                <p><strong>Válida até:</strong> {{ proposal.valid_until.strftime('%d/%m/%Y') if proposal.valid_until else '-' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Itens da Proposta</h5>
+                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    <i class="fas fa-plus"></i> Adicionar Item
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th class="text-center">Qtd.</th>
+                            <th class="text-end">Preço Unit.</th>
+                            <th class="text-end">Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in proposal.items %}
+                        <tr>
+                            <td>{{ item.description }}</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">R$ {{ "%.2f"|format(item.unit_price or 0) }}</td>
+                            <td class="text-end">R$ {{ "%.2f"|format(item.total_price or 0) }}</td>
+                            <td class="text-end">
+                                <form action="{{ url_for('main.delete_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted p-4">Nenhum item adicionado a esta proposta.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('main.add_item', proposal_id=proposal.id) }}" method="POST" novalidate>
+                {{ item_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Adicionar Novo Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ item_form.description.label(class="form-label") }}
+                        {{ item_form.description(class="form-control") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            {{ item_form.quantity.label(class="form-label") }}
+                            {{ item_form.quantity(class="form-control") }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            {{ item_form.unit_price.label(class="form-label") }}
+                            {{ item_form.unit_price(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ item_form.submit(class="btn btn-success") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
