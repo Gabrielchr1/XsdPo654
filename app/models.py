@@ -10,6 +10,22 @@ def load_user(id):
 
 
 
+# --- NOVA CLASSE PARA O CATÁLOGO DE PRODUTOS ---
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    category = db.Column(db.String(50), index=True) # Ex: Módulo, Inversor, Estrutura, Mão de Obra
+    manufacturer = db.Column(db.String(100))
+    power_wp = db.Column(db.Integer) # Potência em Watts, para módulos
+    warranty_years = db.Column(db.Integer) # Garantia em anos
+
+    def __repr__(self):
+        return f'<Product {self.name}>'
+
+
+
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -71,6 +87,12 @@ class Proposal(db.Model):
     estimated_savings_per_year = db.Column(db.Float)
     notes = db.Column(db.Text)
     
+    # --- NOVOS CAMPOS DE DIMENSIONAMENTO ---
+    panel_power_wp = db.Column(db.Integer) # Potência de cada painel em Watts (Ex: 550)
+    panel_quantity = db.Column(db.Integer) # Quantidade de painéis
+
+    # --- NOVO CAMPO ---
+    recommended_inverter_kw = db.Column(db.Float)
 
     # --- NOVOS CAMPOS DE TAXAS E TARIFAS ---
     kwh_price = db.Column(db.Float) # Valor do kWh em R$
@@ -112,18 +134,20 @@ class Proposal(db.Model):
 
 
 
+# --- CLASSE ATUALIZADA PARA OS ITENS DA PROPOSTA ---
+# --- CLASSE ATUALIZADA PARA OS ITENS DA PROPOSTA ---
 class ProposalItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(200), nullable=False)
     quantity = db.Column(db.Integer, default=1)
-    unit_price = db.Column(db.Float)
+    unit_price = db.Column(db.Float) # O preço pode variar por proposta
     total_price = db.Column(db.Float)
 
-    # Relacionamento: Um item pertence a UMA proposta
-    proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=False)
+    # Conecta o item da proposta a um produto do catálogo
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    product = db.relationship('Product')
 
-    def __repr__(self):
-        return f'<ProposalItem {self.description}>'
+    # Conecta o item da proposta à proposta principal
+    proposal_id = db.Column(db.Integer, db.ForeignKey('proposal.id'), nullable=False)
     
 
 

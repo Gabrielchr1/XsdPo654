@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-
+    
     // --- NOVA FUNCIONALIDADE DE ADICIONAR CONCESSIONARIA (MAIS ROBUSTO) ---
     const modalElement = document.getElementById('addConcessionariaModal');
     if (modalElement) {
@@ -195,6 +195,60 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+
+
+    // --- LÓGICA DE DIMENSIONAMENTO AUTOMÁTICO (VERSÃO FINAL) ---
+    const calculateBtn = document.getElementById('calculateSystemBtn');
+    if (calculateBtn) {
+        // Inicializa o modal de resultados do Bootstrap
+        const recommendationModal = new bootstrap.Modal(document.getElementById('recommendationModal'));
+
+        // Adiciona o "ouvinte" de evento ao botão de calcular
+        calculateBtn.addEventListener('click', function() {
+            
+            // 1. COLETA E VALIDA OS DADOS DE ENTRADA DO FORMULÁRIO
+            let consumoMensalKwh = parseFloat(document.getElementById('avg_consumption_kwh').value);
+            const faturaMensalBrl = parseFloat(document.getElementById('avg_bill_brl').value);
+            const tarifaKwh = parseFloat(document.getElementById('kwh_price').value);
+            const irradiacao = parseFloat(document.getElementById('solar_irradiance').value);
+            const potenciaPainelWp = parseInt(document.getElementById('panel_power_wp').value, 10);
+            const tipoConsumo = document.querySelector('input[name="consumption_input_type"]:checked').value;
+
+            // Se o input for em R$, estima o consumo em kWh
+            if (tipoConsumo === 'brl') {
+                if (!faturaMensalBrl || !tarifaKwh || tarifaKwh <= 0) {
+                    alert('Para calcular a partir da fatura, preencha o "Valor Médio da Fatura" e o "Valor da Tarifa de Energia".');
+                    return;
+                }
+                consumoMensalKwh = faturaMensalBrl / tarifaKwh;
+            }
+
+            // Validação final dos dados necessários
+            if (!consumoMensalKwh || !irradiacao || !potenciaPainelWp || consumoMensalKwh <= 0 || irradiacao <= 0) {
+                alert('Para calcular, preencha os campos de Consumo, Irradiação Solar e Potência do Painel.');
+                return;
+            }
+
+            // 2. REALIZA OS CÁLCULOS
+            const eficiencia = 0.80; // Performance Ratio do sistema (80%)
+            const potenciaSistemaKwp = consumoMensalKwh / (irradiacao * 30 * eficiencia);
+            const qtdPaineis = Math.ceil(potenciaSistemaKwp / (potenciaPainelWp / 1000)); // Converte Wp para kWp para o cálculo
+            const inversorRecomendado = Math.round(potenciaSistemaKwp);
+
+            // 3. PREENCHE OS CAMPOS OCULTOS DO FORMULÁRIO
+            document.getElementById('system_power_kwp').value = potenciaSistemaKwp.toFixed(2);
+            document.getElementById('panel_quantity').value = qtdPaineis;
+            document.getElementById('recommended_inverter_kw').value = inversorRecomendado;
+
+            // 4. PREENCHE OS RESULTADOS NO MODAL
+            document.getElementById('result-system-power').innerText = `${potenciaSistemaKwp.toFixed(2)} kWp`;
+            document.getElementById('result-panel-qty').innerText = `${qtdPaineis} placas de ${potenciaPainelWp} Wp`;
+            document.getElementById('result-inverter').innerText = `${inversorRecomendado} kW`;
+            
+            // 5. EXIBE O MODAL COM OS RESULTADOS
+            recommendationModal.show();
+        });
+    }
 
 
 });

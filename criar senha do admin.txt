@@ -1,0 +1,14 @@
+DEVE EXCLUIR AS PASTAS: MIGRATIONS E APP.DB.
+
+# Cria a nova pasta 'migrations'
+flask db init
+
+# Cria um novo arquivo de migração com a estrutura de todas as suas tabelas
+flask db migrate -m "Recriação completa do banco de dados"
+
+# Executa a migração para criar o novo arquivo app.db
+flask db upgrade
+
+DEPOIS RODAR:
+
+flask create-admin Admin admin@solucaosolar.com 123456

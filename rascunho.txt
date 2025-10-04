@@ -1,3 +1,5 @@
-git add .
-git commit -m "correcao0001"
-git push
+òtimo, vamos voltar pra a estilização do nosso pdf.
+
+1. Existe muitos espaços em branco entre as informações, assim o arquivo fica muito feio.
+2. Os novos graficos de 'Custo acumulado de energia em 25 anos esta muito 'grotesco'
+quero um grafico completo que mostra o percurso des do primeiro ano ate em 25 anos, quero o grafico bonito, moderno e elegante.
