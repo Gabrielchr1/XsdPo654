@@ -251,4 +251,52 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
+
+
+    // --- LÓGICA DOS GRÁFICOS DO DASHBOARD (SÓ RODA NO DASHBOARD) ---
+    const lineChartCanvas = document.getElementById('proposalsLineChart');
+    if (lineChartCanvas) {
+        // Gráfico de Linha
+        new Chart(lineChartCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro'],
+                datasets: [{
+                    label: 'Criadas', data: [5, 8, 12, 10, 15, 11],
+                    borderColor: '#4e73df', backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    fill: true, tension: 0.3
+                }, {
+                    label: 'Aprovadas', data: [1, 2, 4, 3, 5, 2],
+                    borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.05)',
+                    fill: true, tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+        // Gráfico de Rosca
+        const doughnutChartCanvas = document.getElementById('statusDoughnutChart');
+        new Chart(doughnutChartCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Em Rascunho', 'Enviadas', 'Aprovadas', 'Recusadas'],
+                datasets: [{
+                    data: [5, 6, 2, 1],
+                    backgroundColor: ['#4e73df', '#f6c23e', '#28a745', '#e74a3b'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+            }
+        });
+    }
+
+
+
+
+
+
 });

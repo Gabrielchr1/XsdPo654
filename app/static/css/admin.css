@@ -136,3 +136,70 @@ body.sidebar-collapsed .has-arrow::after { display: none; }
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
 }
+
+
+
+
+.kpi-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+.kpi-card .card-body {
+    padding: 1.25rem;
+}
+
+.kpi-card .text-xs {
+    font-size: 0.75rem;
+}
+
+.kpi-card .fa-2x {
+    color: #dddfeb;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.kpi-card:hover .fa-2x {
+    transform: scale(1.15);
+}
+
+.border-left-primary { border-left: 0.25rem solid #4e73df !important; }
+.border-left-success { border-left: 0.25rem solid var(--primary-green) !important; }
+.border-left-info { border-left: 0.25rem solid #36b9cc !important; }
+.border-left-warning { border-left: 0.25rem solid #f6c23e !important; }
+
+.kpi-card.border-left-primary:hover .fa-2x { color: #4e73df; }
+.kpi-card.border-left-success:hover .fa-2x { color: var(--primary-green); }
+.kpi-card.border-left-info:hover .fa-2x { color: #36b9cc; }
+.kpi-card.border-left-warning:hover .fa-2x { color: #f6c23e; }
+
+.card-header .font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-primary { color: #4e73df !important; }
+.text-success { color: var(--primary-green) !important; }
+.text-info { color: #36b9cc !important; }
+.text-warning { color: #f6c23e !important; }
+
+
+/* Garante que o corpo do card cresça para preencher o espaço vertical */
+.card.d-flex.flex-column .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+/* Define uma altura fixa para os containers dos gráficos */
+.chart-container {
+    position: relative; /* Necessário para o Chart.js funcionar bem */
+    height: 320px;
+}
